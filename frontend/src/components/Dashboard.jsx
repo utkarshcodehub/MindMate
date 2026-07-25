@@ -1,11 +1,14 @@
 /**
- * Dashboard.jsx
+ * Dashboard.jsx  ("Trends")
  *
- * Shows the user's recent patterns:
- *   - Current flag state (none / soft_nudge / hard_flag)
- *   - 7-day sparkline (mood + stress on one chart)
- *   - Recent log entries summary
- *   - Safety check prompt if 2-week cadence is due
+ * The user's recent patterns:
+ *   - Current flag state (steady / heads up / check in)
+ *   - 7-day chart (mood + stress), theme-aware colors
+ *   - Flagged-days + logged-days stats
+ *   - Safety check prompt if the 2-week cadence is due
+ *
+ * NOTE: no .page wrapper here — App wraps Dashboard + AgentChat
+ * together so they share one column.
  */
 
 import { useState, useEffect } from 'react'
@@ -22,15 +25,20 @@ const PHQ_SCALE = [
   { value: 3, label: 'Nearly every day' },
 ]
 
+/** Read a CSS custom property so charts follow light/dark automatically */
+function cssVar(name, fallback) {
+  if (typeof window === 'undefined') return fallback
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name)
+  return v?.trim() || fallback
+}
+
 function FlagCard({ flagType, nudgeMessage }) {
   if (flagType === 'none' || !flagType) {
     return (
-      <div className="card" style={{ borderColor: 'var(--safe)', borderLeftWidth: 3 }}>
-        <div className="row">
-          <span className="flag-badge flag-none">no flag</span>
-          <span className="muted" style={{ fontSize: 13 }}>
-            Things look stable. Keep logging.
-          </span>
+      <div className="card">
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="flag-chip flag-steady">steady</span>
+          <span className="muted">Nothing out of the ordinary. Keep going.</span>
         </div>
       </div>
     )
@@ -38,17 +46,17 @@ function FlagCard({ flagType, nudgeMessage }) {
 
   if (flagType === 'soft_nudge') {
     return (
-      <div className="card" style={{ borderColor: 'var(--warn)', borderLeftWidth: 3 }}>
-        <span className="flag-badge flag-soft">heads up</span>
-        {nudgeMessage && <div className="nudge-card">{nudgeMessage}</div>}
+      <div className="card card-tint-apricot">
+        <span className="flag-chip flag-soft">heads up</span>
+        {nudgeMessage && <p className="nudge-text">{nudgeMessage}</p>}
       </div>
     )
   }
 
   return (
-    <div className="card" style={{ borderColor: 'var(--danger)', borderLeftWidth: 3 }}>
-      <span className="flag-badge flag-hard">check in</span>
-      {nudgeMessage && <div className="nudge-card" style={{ borderColor: 'var(--danger)' }}>{nudgeMessage}</div>}
+    <div className="card card-tint-rose">
+      <span className="flag-chip flag-hard">check in</span>
+      {nudgeMessage && <p className="nudge-text">{nudgeMessage}</p>}
     </div>
   )
 }
@@ -77,32 +85,13 @@ function SafetyCheckPrompt({ userId, onComplete }) {
   if (done) return null
 
   return (
-    <div
-      className="card"
-      style={{
-        borderColor: 'rgba(245,197,66,0.3)',
-        background: 'rgba(245,197,66,0.04)',
-      }}
-    >
-      <p
-        style={{
-          fontSize: 12,
-          fontFamily: 'var(--mono)',
-          color: 'var(--accent)',
-          marginBottom: 10,
-          letterSpacing: '0.5px',
-        }}
-      >
-        2-WEEK CHECK-IN
-      </p>
-      <p style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>
+    <div className="card">
+      <p className="eyebrow" style={{ marginBottom: 10 }}>2-week check-in</p>
+      <p style={{ fontSize: 14.5, lineHeight: 1.6, marginBottom: 10 }}>
         Over the last 2 weeks, have you had any thoughts of being better
         off dead, or of hurting yourself in some way?
       </p>
-      <p
-        className="muted"
-        style={{ fontSize: 12, marginBottom: 12, lineHeight: 1.6 }}
-      >
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 4, lineHeight: 1.6 }}>
         Your answer stays completely private and is never shared with anyone.
       </p>
       <div className="option-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
@@ -113,11 +102,11 @@ function SafetyCheckPrompt({ userId, onComplete }) {
             onClick={() => setAnswer(opt.value)}
           >
             <span
+              className="mono"
               style={{
                 display: 'block',
-                fontFamily: 'var(--mono)',
                 fontSize: 12,
-                color: answer === opt.value ? 'var(--accent)' : 'var(--muted)',
+                color: answer === opt.value ? 'var(--accent-ink)' : 'var(--muted)',
                 marginBottom: 2,
               }}
             >
@@ -139,24 +128,20 @@ function SafetyCheckPrompt({ userId, onComplete }) {
   )
 }
 
-const METRIC_COLORS = {
-  mood:    '#f5c542',
-  stress:  '#ef4444',
-}
-
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: 'var(--surface2)',
-      border: '1px solid var(--border)',
+      background: 'var(--surface)',
+      border: '1px solid var(--line)',
       borderRadius: 8,
       padding: '8px 12px',
       fontSize: 13,
+      boxShadow: 'var(--shadow)',
     }}>
       <p style={{ color: 'var(--muted)', marginBottom: 4 }}>{label}</p>
       {payload.map(p => (
-        <p key={p.dataKey} style={{ color: p.color, fontFamily: 'var(--mono)' }}>
+        <p key={p.dataKey} className="mono" style={{ color: p.color }}>
           {p.name}: {p.value}
         </p>
       ))}
@@ -169,6 +154,9 @@ export default function Dashboard({ userId, onLogToday }) {
   const [safetyDue, setSafetyDue] = useState(false)
   const [loading, setLoading] = useState(true)
   const [latestResult, setLatestResult] = useState(null)
+
+  const moodColor   = cssVar('--accent', '#5158A5')
+  const stressColor = cssVar('--apricot', '#C97F3D')
 
   useEffect(() => {
     Promise.all([
@@ -192,22 +180,18 @@ export default function Dashboard({ userId, onLogToday }) {
 
   if (loading) {
     return (
-      <div className="page" style={{ paddingTop: 48 }}>
-        <p className="muted text-center" style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>
-          Loading…
-        </p>
-      </div>
+      <p className="muted text-center mono" style={{ paddingTop: 56, fontSize: 13 }}>
+        reading your line…
+      </p>
     )
   }
 
   if (!summary) {
     return (
-      <div className="page" style={{ paddingTop: 48 }}>
-        <div className="card text-center">
-          <p className="muted" style={{ fontSize: 14 }}>
-            Couldn't load your dashboard. Try again later.
-          </p>
-        </div>
+      <div className="card text-center" style={{ marginTop: 40 }}>
+        <p className="muted" style={{ fontSize: 14 }}>
+          Couldn't load your trends. Check your connection and try again.
+        </p>
       </div>
     )
   }
@@ -223,21 +207,15 @@ export default function Dashboard({ userId, onLogToday }) {
       stress: log.stress,
     }))
 
-  const flagLabels = {
-    none: 'No flag',
-    soft_nudge: 'Heads up',
-    hard_flag: 'Check in',
-  }
-
   return (
-    <div className="page">
-      <div style={{ padding: '32px 0 20px' }}>
-        <p className="muted" style={{ fontSize: 13, marginBottom: 4 }}>
+    <>
+      <div style={{ padding: '28px 0 18px' }}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>
           {new Date().toLocaleDateString('en-IN', {
             weekday: 'long', day: 'numeric', month: 'long',
           })}
         </p>
-        <h1>Your check-in</h1>
+        <h1>Your trends</h1>
       </div>
 
       {/* Flag state */}
@@ -256,21 +234,17 @@ export default function Dashboard({ userId, onLogToday }) {
       {/* 7-day chart */}
       {chartData.length >= 2 && (
         <div className="card mt16">
-          <div className="row" style={{ marginBottom: 12, justifyContent: 'space-between' }}>
+          <div className="ruled">
             <h2>Last 7 days</h2>
             <div className="row" style={{ gap: 14 }}>
-              <span style={{ fontSize: 12, color: METRIC_COLORS.mood }}>
-                ● mood
-              </span>
-              <span style={{ fontSize: 12, color: METRIC_COLORS.stress }}>
-                ● stress
-              </span>
+              <span style={{ fontSize: 12, color: moodColor }}>● mood</span>
+              <span style={{ fontSize: 12, color: stressColor }}>● stress</span>
             </div>
           </div>
-          <div className="chart-wrap" style={{ height: 160 }}>
+          <div className="chart-wrap" style={{ height: 170 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                <CartesianGrid stroke="var(--line)" strokeDasharray="3 4" vertical={false} />
                 <XAxis
                   dataKey="date"
                   tick={{ fill: 'var(--muted)', fontSize: 11 }}
@@ -287,17 +261,17 @@ export default function Dashboard({ userId, onLogToday }) {
                 <Line
                   type="monotone"
                   dataKey="mood"
-                  stroke={METRIC_COLORS.mood}
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: METRIC_COLORS.mood }}
+                  stroke={moodColor}
+                  strokeWidth={2.25}
+                  dot={{ r: 3, fill: moodColor, strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="stress"
-                  stroke={METRIC_COLORS.stress}
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: METRIC_COLORS.stress }}
+                  stroke={stressColor}
+                  strokeWidth={2.25}
+                  dot={{ r: 3, fill: stressColor, strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
               </LineChart>
@@ -308,58 +282,54 @@ export default function Dashboard({ userId, onLogToday }) {
 
       {/* Stats row */}
       {summary.baseline_available && (
-        <div className="card mt16" style={{ display: 'flex', gap: 0 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '4px 0' }}>
+        <div className="card mt16 stat-row">
+          <div className="stat-cell">
             <p
+              className="stat-num"
               style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 26,
-                fontWeight: 600,
-                color: summary.days_flagged_last_14 > 5 ? 'var(--danger)' : 'var(--accent)',
+                color: summary.days_flagged_last_14 > 5 ? 'var(--rose)' : 'var(--accent-ink)',
               }}
             >
               {summary.days_flagged_last_14}
             </p>
-            <p className="muted" style={{ fontSize: 12 }}>flagged days (14d)</p>
+            <p className="stat-label">flagged days, last 14</p>
           </div>
-          <div style={{ width: 1, background: 'var(--border)', margin: '4px 0' }} />
-          <div style={{ flex: 1, textAlign: 'center', padding: '4px 0' }}>
-            <p style={{ fontFamily: 'var(--mono)', fontSize: 26, fontWeight: 600, color: 'var(--safe)' }}>
+          <div className="stat-div" />
+          <div className="stat-cell">
+            <p className="stat-num" style={{ color: 'var(--moss)' }}>
               {summary.recent_logs.length}
             </p>
-            <p className="muted" style={{ fontSize: 12 }}>days logged (7d)</p>
+            <p className="stat-label">days logged, last 7</p>
           </div>
         </div>
       )}
 
       {!summary.baseline_available && (
-        <div className="card mt16">
-          <p className="muted" style={{ fontSize: 13, lineHeight: 1.6 }}>
-            Keep logging daily — trend detection starts after{' '}
-            <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent)' }}>10</span> check-ins.
-            You're at{' '}
-            <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent)' }}>
+        <div className="card mt16 card-tint-accent">
+          <p style={{ fontSize: 14, lineHeight: 1.65 }}>
+            Baseline is still learning your normal. Trend detection begins
+            after <span className="mono" style={{ color: 'var(--accent-ink)' }}>10</span>{' '}
+            check-ins — you're at{' '}
+            <span className="mono" style={{ color: 'var(--accent-ink)' }}>
               {summary.recent_logs.length}
-            </span>
-            .
+            </span>{' '}
+            this week.
           </p>
         </div>
       )}
 
       {/* Log today button */}
-      <div style={{ marginTop: 24 }}>
+      <div className="mt24">
         <button className="btn btn-primary" onClick={onLogToday}>
-          Log today
+          Log today's check-in
         </button>
       </div>
 
-      <p
-        className="muted text-center"
-        style={{ fontSize: 11, marginTop: 20, lineHeight: 1.6 }}
-      >
-        This tool does not diagnose any condition. Crisis support:{' '}
-        iCall 9152987821 · Vandrevala 1860-2662-345
+      <p className="muted text-center" style={{ fontSize: 11.5, marginTop: 20, lineHeight: 1.7 }}>
+        Baseline does not diagnose any condition. Crisis support:{' '}
+        iCall <span className="mono">9152987821</span> · Vandrevala{' '}
+        <span className="mono">1860-2662-345</span>
       </p>
-    </div>
+    </>
   )
 }

@@ -32,9 +32,9 @@ export default function AgentChat({ userId, onCrisis }) {
     {
       role: 'assistant',
       content:
-        "Hi — I'm your Wellbeing Agent. I can look at your own check-in " +
-        'data and help you make sense of it. Ask me anything about how ' +
-        "you've been doing.",
+        "Hi — I'm the Wellbeing Agent. I can read your own check-ins " +
+        'and help you make sense of them. Ask me anything about how ' +
+        "you've been doing lately.",
       tools: [],
     },
   ])
@@ -110,9 +110,9 @@ export default function AgentChat({ userId, onCrisis }) {
   return (
     <div className="card agent-chat">
       <div className="agent-header">
-        <span className="agent-title">Wellbeing Agent</span>
+        <span className="agent-title">the wellbeing agent</span>
         <span className="muted agent-sub">
-          grounded in your data · not a therapist · not a diagnosis
+          reads your real data · not a therapist · not a diagnosis
         </span>
       </div>
 

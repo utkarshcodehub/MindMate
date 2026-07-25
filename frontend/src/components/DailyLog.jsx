@@ -1,9 +1,9 @@
 /**
- * DailyLog.jsx
+ * DailyLog.jsx  ("Today")
  *
- * The core daily interaction — 5 sliders, completable in under 30 seconds.
- * Each slider shows its value in large JetBrains Mono text (the signature
- * element of this UI). Submits to POST /api/log.
+ * The core daily interaction — 5 sliders, completable in under 30
+ * seconds. Values render in JetBrains Mono like instrument readings.
+ * Submits to POST /api/log. Logic unchanged from v3.
  */
 
 import { useState } from 'react'
@@ -16,6 +16,14 @@ const DEFAULTS = {
   sleep_quality: 3,
   study_hours: 4,
   stress: 4,
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 5) return 'Late night check-in'
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
 }
 
 export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboard }) {
@@ -49,18 +57,20 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
     }
   }
 
-  // Already logged today — show a calm holding screen
+  // Already logged today — a calm holding screen
   if (todayLogged) {
     return (
       <div className="page" style={{ paddingTop: 48 }}>
         <div className="card text-center">
-          <p style={{ fontSize: 28, marginBottom: 8 }}>✓</p>
-          <h2>Already logged today</h2>
+          <p style={{ fontSize: 26, color: 'var(--moss)', marginBottom: 8 }}>✓</p>
+          <h2 style={{ fontFamily: 'var(--display)', fontSize: 22, fontWeight: 600 }}>
+            Today is already on your line
+          </h2>
           <p className="muted mt8" style={{ fontSize: 14 }}>
-            Come back tomorrow for your next check-in.
+            One reading a day is all Baseline needs. See you tomorrow.
           </p>
           <button className="btn btn-ghost mt24" onClick={onViewDashboard}>
-            See my dashboard
+            See my trends
           </button>
         </div>
       </div>
@@ -70,17 +80,17 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
   return (
     <div className="page">
       {/* Header */}
-      <div style={{ padding: '32px 0 8px' }}>
-        <p className="muted" style={{ fontSize: 13, marginBottom: 4 }}>
+      <div style={{ padding: '28px 0 8px' }}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>
           {new Date().toLocaleDateString('en-IN', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
           })}
         </p>
-        <h1>How are you doing?</h1>
+        <h1>{greeting()} — how are you?</h1>
         <p className="muted mt8" style={{ fontSize: 14 }}>
-          Takes about 30 seconds. Just move the sliders to where things feel right.
+          About 30 seconds. Move the sliders to where things honestly feel.
         </p>
       </div>
 
@@ -140,12 +150,13 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
       />
 
       {/* Optional note */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ margin: '20px 0 24px' }}>
         <p className="muted" style={{ fontSize: 13, marginBottom: 8 }}>
-          Anything on your mind? <span style={{ opacity: 0.6 }}>(optional, never scored)</span>
+          Anything on your mind?{' '}
+          <span style={{ opacity: 0.65 }}>(optional — never scored, just yours)</span>
         </p>
         <textarea
-          placeholder="Just a space to write if you want to…"
+          placeholder="A space to write, if you want to…"
           value={freeText}
           onChange={e => setFreeText(e.target.value)}
           maxLength={500}
@@ -153,7 +164,7 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
       </div>
 
       {error && (
-        <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>
+        <p style={{ color: 'var(--rose)', fontSize: 13, marginBottom: 12 }}>
           {error}
         </p>
       )}
@@ -163,7 +174,7 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
         disabled={loading}
         onClick={handleSubmit}
       >
-        {loading ? 'Saving…' : 'Save today\'s log'}
+        {loading ? 'Saving…' : "Save today's check-in"}
       </button>
 
       <button
@@ -171,7 +182,7 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
         style={{ marginTop: 10 }}
         onClick={onViewDashboard}
       >
-        View dashboard
+        View trends instead
       </button>
     </div>
   )

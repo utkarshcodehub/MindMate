@@ -7,8 +7,8 @@
  *   3. PSS-4   (stress assessment, 0-4 scale)
  *   4. Item 9  (safety question, alone, special framing)
  *
- * All answers collected before submitting so the API gets
- * one clean POST with all 9 fields.
+ * All answers collected before submitting so the API gets one clean
+ * POST with all 9 fields. Logic unchanged from v3 — presentation only.
  */
 
 import { useState } from 'react'
@@ -81,7 +81,7 @@ const GROUPS = [
 function QuestionCard({ question, scale, answer, onSelect }) {
   return (
     <div className="card mt16">
-      <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text)' }}>{question.text}</p>
+      <p style={{ fontSize: 15, lineHeight: 1.6 }}>{question.text}</p>
       <div className="option-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
         {scale.map(opt => (
           <button
@@ -90,11 +90,11 @@ function QuestionCard({ question, scale, answer, onSelect }) {
             onClick={() => onSelect(question.id, opt.value)}
           >
             <span
+              className="mono"
               style={{
                 display: 'block',
-                fontFamily: 'var(--mono)',
                 fontSize: 13,
-                color: answer === opt.value ? 'var(--accent)' : 'var(--muted)',
+                color: answer === opt.value ? 'var(--accent-ink)' : 'var(--muted)',
                 marginBottom: 2,
               }}
             >
@@ -142,39 +142,27 @@ export default function Onboarding({ onComplete }) {
     }
   }
 
-  const progress = ((step) / totalSteps) * 100
+  const progress = (step / totalSteps) * 100
 
   return (
     <div className="page">
       {/* Header */}
-      <div style={{ padding: '32px 0 24px' }}>
-        <p className="muted" style={{ marginBottom: 8 }}>
-          Step {step + 1} of {totalSteps}
+      <div style={{ padding: '28px 0 20px' }}>
+        <p className="eyebrow" style={{ marginBottom: 4 }}>
+          Setting your baseline · step {step + 1} of {totalSteps}
         </p>
-        <div className="progress-bar">
+        <div className="progress-track">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
         <h1>{group.title}</h1>
         {group.subtitle && (
-          <p
-            className="muted"
-            style={{
-              marginTop: 8,
-              fontSize: 14,
-              lineHeight: 1.6,
-              ...(group.isSpecial
-                ? {
-                    background: 'rgba(245, 197, 66, 0.07)',
-                    border: '1px solid rgba(245, 197, 66, 0.2)',
-                    borderRadius: 'var(--radius)',
-                    padding: '10px 14px',
-                    color: 'var(--text)',
-                  }
-                : {}),
-            }}
-          >
-            {group.subtitle}
-          </p>
+          group.isSpecial ? (
+            <p className="notice">{group.subtitle}</p>
+          ) : (
+            <p className="muted" style={{ marginTop: 8, fontSize: 14, lineHeight: 1.6 }}>
+              {group.subtitle}
+            </p>
+          )
         )}
       </div>
 
@@ -191,20 +179,20 @@ export default function Onboarding({ onComplete }) {
 
       {/* Error */}
       {error && (
-        <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 12 }}>
+        <p style={{ color: 'var(--rose)', fontSize: 13, marginTop: 12 }}>
           {error}
         </p>
       )}
 
       {/* Action */}
-      <div style={{ marginTop: 24 }}>
+      <div className="mt24">
         <button
           className="btn btn-primary"
           disabled={!groupAnswered || loading}
           onClick={handleNext}
         >
           {loading
-            ? 'Setting up…'
+            ? 'Drawing your line…'
             : step < totalSteps - 1
             ? 'Next'
             : 'Finish setup'}
@@ -214,11 +202,11 @@ export default function Onboarding({ onComplete }) {
       {/* Disclaimer */}
       <p
         className="muted text-center"
-        style={{ fontSize: 12, marginTop: 20, lineHeight: 1.6 }}
+        style={{ fontSize: 12, marginTop: 20, lineHeight: 1.7 }}
       >
-        This tool does not diagnose any condition. It is a private
-        early-warning system to help you notice patterns before they
-        become harder to manage.
+        These short questionnaires set your starting picture. Baseline
+        does not diagnose any condition — it helps you notice patterns
+        before they become harder to manage.
       </p>
     </div>
   )
