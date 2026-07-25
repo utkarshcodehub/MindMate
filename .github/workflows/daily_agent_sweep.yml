@@ -1,0 +1,23 @@
+# Daily automated agent sweep — the TRIGGER of the automation workflow.
+# Runs at 03:30 UTC (= 9:00 AM IST) every day, and can be run manually.
+#
+# Setup: in the GitHub repo -> Settings -> Secrets and variables -> Actions:
+#   SWEEP_URL          = https://<your-api>.onrender.com/api/automation/daily-sweep
+#   AUTOMATION_SECRET  = the same value set on Render
+name: Daily Agent Sweep
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch: {}
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the wellbeing agent sweep
+        run: |
+          curl -sS -X POST "$SWEEP_URL" \
+            -H "X-Automation-Secret: $AUTOMATION_SECRET" \
+            --fail-with-body
+        env:
+          SWEEP_URL: ${{ secrets.SWEEP_URL }}
+          AUTOMATION_SECRET: ${{ secrets.AUTOMATION_SECRET }}

@@ -1,0 +1,21 @@
+# Render Blueprint — deploy the FastAPI backend
+# In the Render dashboard: New + > Blueprint > point at this repo.
+# Then set the three secret env vars in the service settings.
+services:
+  - type: web
+    name: student-wellbeing-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: AUTOMATION_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false   # set to your Vercel URL after frontend deploy
