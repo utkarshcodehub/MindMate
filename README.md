@@ -3,8 +3,7 @@
 A private, non-judgmental early-warning system for student burnout — now
 with an **autonomous AI agent** students can talk to about their own data.
 
-**SDG 3: Good Health and Well-being** · Built for the IBM SkillsBuild
-AI Automation & Intelligent Solutions Internship.
+**SDG 3: Good Health and Well-being** ·
 
 > This tool does **not** diagnose, does **not** replace therapy, and is
 > **not** a crisis service. It is a bridge to help-seeking.
