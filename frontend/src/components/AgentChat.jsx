@@ -110,7 +110,7 @@ export default function AgentChat({ userId, onCrisis }) {
   return (
     <div className="card agent-chat">
       <div className="agent-header">
-        <span className="agent-title">the wellbeing agent</span>
+        <span className="agent-title">Your MindMate agent</span>
         <span className="muted agent-sub">
           reads your real data · not a therapist · not a diagnosis
         </span>

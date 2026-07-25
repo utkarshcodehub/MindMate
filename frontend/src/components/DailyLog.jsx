@@ -63,11 +63,11 @@ export default function DailyLog({ userId, todayLogged, onSubmit, onViewDashboar
       <div className="page" style={{ paddingTop: 48 }}>
         <div className="card text-center">
           <p style={{ fontSize: 26, color: 'var(--moss)', marginBottom: 8 }}>✓</p>
-          <h2 style={{ fontFamily: 'var(--display)', fontSize: 22, fontWeight: 600 }}>
-            Today is already on your line
+          <h2 style={{ fontSize: 21, fontWeight: 600 }}>
+            You're all checked in for today
           </h2>
           <p className="muted mt8" style={{ fontSize: 14 }}>
-            One reading a day is all Baseline needs. See you tomorrow.
+            One check-in a day is all MindMate needs. See you tomorrow.
           </p>
           <button className="btn btn-ghost mt24" onClick={onViewDashboard}>
             See my trends

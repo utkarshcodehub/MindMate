@@ -46,7 +46,7 @@ function FlagCard({ flagType, nudgeMessage }) {
 
   if (flagType === 'soft_nudge') {
     return (
-      <div className="card card-tint-apricot">
+      <div className="card card-tint-amber">
         <span className="flag-chip flag-soft">heads up</span>
         {nudgeMessage && <p className="nudge-text">{nudgeMessage}</p>}
       </div>
@@ -106,7 +106,7 @@ function SafetyCheckPrompt({ userId, onComplete }) {
               style={{
                 display: 'block',
                 fontSize: 12,
-                color: answer === opt.value ? 'var(--accent-ink)' : 'var(--muted)',
+                color: answer === opt.value ? 'var(--accent)' : 'var(--muted)',
                 marginBottom: 2,
               }}
             >
@@ -155,8 +155,8 @@ export default function Dashboard({ userId, onLogToday }) {
   const [loading, setLoading] = useState(true)
   const [latestResult, setLatestResult] = useState(null)
 
-  const moodColor   = cssVar('--accent', '#5158A5')
-  const stressColor = cssVar('--apricot', '#C97F3D')
+  const moodColor   = cssVar('--accent', '#B65C87')
+  const stressColor = cssVar('--amber', '#B0722E')
 
   useEffect(() => {
     Promise.all([
@@ -181,7 +181,7 @@ export default function Dashboard({ userId, onLogToday }) {
   if (loading) {
     return (
       <p className="muted text-center mono" style={{ paddingTop: 56, fontSize: 13 }}>
-        reading your line…
+        loading your week…
       </p>
     )
   }
@@ -287,7 +287,7 @@ export default function Dashboard({ userId, onLogToday }) {
             <p
               className="stat-num"
               style={{
-                color: summary.days_flagged_last_14 > 5 ? 'var(--rose)' : 'var(--accent-ink)',
+                color: summary.days_flagged_last_14 > 5 ? 'var(--rose)' : 'var(--accent)',
               }}
             >
               {summary.days_flagged_last_14}
@@ -305,12 +305,12 @@ export default function Dashboard({ userId, onLogToday }) {
       )}
 
       {!summary.baseline_available && (
-        <div className="card mt16 card-tint-accent">
+        <div className="card mt16 card-tint-soft">
           <p style={{ fontSize: 14, lineHeight: 1.65 }}>
-            Baseline is still learning your normal. Trend detection begins
-            after <span className="mono" style={{ color: 'var(--accent-ink)' }}>10</span>{' '}
+            MindMate is still learning your normal. Trend detection begins
+            after <span className="mono" style={{ color: 'var(--accent)' }}>10</span>{' '}
             check-ins — you're at{' '}
-            <span className="mono" style={{ color: 'var(--accent-ink)' }}>
+            <span className="mono" style={{ color: 'var(--accent)' }}>
               {summary.recent_logs.length}
             </span>{' '}
             this week.
@@ -326,7 +326,7 @@ export default function Dashboard({ userId, onLogToday }) {
       </div>
 
       <p className="muted text-center" style={{ fontSize: 11.5, marginTop: 20, lineHeight: 1.7 }}>
-        Baseline does not diagnose any condition. Crisis support:{' '}
+        MindMate does not diagnose any condition. Crisis support:{' '}
         iCall <span className="mono">9152987821</span> · Vandrevala{' '}
         <span className="mono">1860-2662-345</span>
       </p>

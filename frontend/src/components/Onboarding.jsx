@@ -94,7 +94,7 @@ function QuestionCard({ question, scale, answer, onSelect }) {
               style={{
                 display: 'block',
                 fontSize: 13,
-                color: answer === opt.value ? 'var(--accent-ink)' : 'var(--muted)',
+                color: answer === opt.value ? 'var(--accent)' : 'var(--muted)',
                 marginBottom: 2,
               }}
             >
@@ -149,7 +149,7 @@ export default function Onboarding({ onComplete }) {
       {/* Header */}
       <div style={{ padding: '28px 0 20px' }}>
         <p className="eyebrow" style={{ marginBottom: 4 }}>
-          Setting your baseline · step {step + 1} of {totalSteps}
+          Setting up MindMate · step {step + 1} of {totalSteps}
         </p>
         <div className="progress-track">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
@@ -192,7 +192,7 @@ export default function Onboarding({ onComplete }) {
           onClick={handleNext}
         >
           {loading
-            ? 'Drawing your line…'
+            ? 'Getting things ready…'
             : step < totalSteps - 1
             ? 'Next'
             : 'Finish setup'}
@@ -204,7 +204,7 @@ export default function Onboarding({ onComplete }) {
         className="muted text-center"
         style={{ fontSize: 12, marginTop: 20, lineHeight: 1.7 }}
       >
-        These short questionnaires set your starting picture. Baseline
+        These short questionnaires set your starting picture. MindMate
         does not diagnose any condition — it helps you notice patterns
         before they become harder to manage.
       </p>

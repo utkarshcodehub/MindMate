@@ -85,6 +85,7 @@ export default function App() {
         view={view}
         hasUser={!!userId}
         onNavigate={setView}
+        onStart={() => setView('onboarding')}
       />
 
       {view === 'landing' && (
