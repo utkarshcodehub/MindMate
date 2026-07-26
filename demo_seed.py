@@ -67,7 +67,9 @@ def main():
         "item9_response": 0,
     }, timeout=30)
     r.raise_for_status()
-    user_id = r.json()["user_id"]
+    resp_data = r.json()
+    user_id = resp_data["user_id"]
+    auth_token = resp_data.get("auth_token", "")
     print(f"   demo user_id = {user_id}\n")
 
     # ------------------------------------------------------------------
@@ -75,6 +77,8 @@ def main():
     # ------------------------------------------------------------------
     print("2) Submitting 24 days of check-ins (watch the flags appear)…")
     start = date.today() - timedelta(days=DAYS_TOTAL - 1)
+
+    headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
 
     for i in range(DAYS_TOTAL):
         d = start + timedelta(days=i)
@@ -99,7 +103,7 @@ def main():
             "stress": int(clamp(round(n(stress, 0.5)), 1, 10)),
             "free_text": None,
         }
-        r = requests.post(f"{base}/log", json=payload, timeout=60)
+        r = requests.post(f"{base}/log", json=payload, headers=headers, timeout=60)
         r.raise_for_status()
         res = r.json()
         marker = {"none": " ", "soft_nudge": "⚠", "hard_flag": "🚨"}.get(res["flag_type"], "?")
@@ -136,9 +140,11 @@ DONE. To open the demo user in the frontend:
   2. Open DevTools console (F12) and run:
 
        localStorage.setItem('wb_user_id', '{user_id}')
+       localStorage.setItem('wb_auth_token', '{auth_token}')
        localStorage.removeItem('wb_last_log_date')
 
   3. Reload the page.
+
 
 WHAT TO LOOK AT (and screenshot for the PPT):
 

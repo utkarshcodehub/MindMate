@@ -6,10 +6,11 @@ GET  /api/user/{id}/due-safety-check -- Check if 2-week cadence check is due
 """
 
 from datetime import date, timedelta
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from api.models import SafetyCheckRequest, SafetyCheckResponse, SafetyCheckDueResponse
 from api import db
+from api.auth import get_current_user_id, verify_user_access
 from engine.safety_check import evaluate_item9
 
 router = APIRouter()
@@ -18,7 +19,15 @@ SAFETY_CHECK_CADENCE_DAYS = 14
 
 
 @router.post("/safety-check", response_model=SafetyCheckResponse)
-async def submit_safety_check(req: SafetyCheckRequest):
+async def submit_safety_check(
+    req: SafetyCheckRequest,
+    current_user_id: str = Depends(get_current_user_id),
+):
+    if req.user_id != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied: You can only submit safety checks for your own account.",
+        )
     user = db.get_user(req.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
@@ -60,7 +69,11 @@ async def submit_safety_check(req: SafetyCheckRequest):
 
 
 @router.get("/user/{user_id}/due-safety-check", response_model=SafetyCheckDueResponse)
-async def check_safety_due(user_id: str):
+async def check_safety_due(
+    user_id: str,
+    _: str = Depends(verify_user_access),
+):
+
     """
     Called by the frontend (or a scheduled cron job) to ask:
     is this user due for their 2-week item 9 re-check?
