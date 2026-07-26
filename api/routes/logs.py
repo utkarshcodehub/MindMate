@@ -7,10 +7,11 @@ GET  /api/user/{id}/summary -- Recent logs + flag state for the dashboard
 
 import pandas as pd
 from datetime import date, timedelta
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from api.models import DailyLogRequest, DailyLogResponse, UserSummaryResponse, RecentLog
 from api import db
+from api.auth import get_current_user_id, verify_user_access
 from api.groq_client import generate_nudge_message
 from engine.flag_decision import evaluate_day, UserTrendState
 from engine.safety_check import CRISIS_RESOURCES
@@ -32,7 +33,16 @@ def _logs_to_dataframe(logs: list) -> pd.DataFrame:
 
 
 @router.post("/log", response_model=DailyLogResponse)
-async def submit_log(req: DailyLogRequest):
+async def submit_log(
+    req: DailyLogRequest,
+    current_user_id: str = Depends(get_current_user_id),
+):
+    if req.user_id != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied: You can only submit logs for your own account.",
+        )
+
     # 1. Verify user exists
     user = db.get_user(req.user_id)
     if not user:
@@ -127,7 +137,11 @@ async def submit_log(req: DailyLogRequest):
 
 
 @router.get("/user/{user_id}/summary", response_model=UserSummaryResponse)
-async def get_user_summary(user_id: str):
+async def get_user_summary(
+    user_id: str,
+    _: str = Depends(verify_user_access),
+):
+
     user = db.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")

@@ -37,6 +37,7 @@ class OnboardRequest(BaseModel):
 
 class OnboardResponse(BaseModel):
     user_id: str
+    auth_token: Optional[str] = None  # Signed long-lived token bound to user_id
     phq2_score: int                  # 0-6
     gad2_score: int                  # 0-6
     pss4_score: int                  # 0-16 (post-reversal)
@@ -45,6 +46,7 @@ class OnboardResponse(BaseModel):
     crisis_path_fired: bool          # True if item9_response > 0
     crisis_resources: list           # populated only if crisis_path_fired
     message: str                     # human-readable summary for the client to display
+
 
 
 # -----------------------------------------------------------------------
