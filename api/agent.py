@@ -35,7 +35,7 @@ from engine.safety_check import CRISIS_RESOURCES
 
 load_dotenv()
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 MAX_TOOL_ROUNDS = 4
 
 # ----------------------------------------------------------------------

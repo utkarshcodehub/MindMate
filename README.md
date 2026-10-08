@@ -30,7 +30,7 @@ with an **autonomous AI agent** students can talk to about their own data.
    gentle re-engagement; otherwise → no action. The LLM only words the
    message; nudges appear in the student's agent chat at next login,
    marked "sent automatically by the daily agent sweep."
-5. **Wellbeing Agent (LLM + tools)** — a Groq LLaMA 3.3 70B agent that
+5. **Wellbeing Agent (LLM + tools)** — a Groq LLM agent that
    autonomously decides which tools to call to answer the student:
 
    | Tool | What it gives the agent |
