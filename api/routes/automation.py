@@ -10,9 +10,10 @@ service (GitHub Actions / cron-job.org) sends the same header.
 """
 
 import os
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Depends
 
 from api import db
+from api.auth import verify_user_access
 from api.automation import run_daily_sweep
 
 router = APIRouter()
@@ -32,7 +33,11 @@ async def daily_sweep(x_automation_secret: str = Header(default="")):
 
 
 @router.get("/user/{user_id}/agent-nudge")
-async def latest_agent_nudge(user_id: str):
+async def latest_agent_nudge(
+    user_id: str,
+    _: str = Depends(verify_user_access),
+):
+
     user = db.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")

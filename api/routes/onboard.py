@@ -20,9 +20,11 @@ from fastapi import APIRouter, HTTPException
 from api.models import OnboardRequest, OnboardResponse
 from api.scoring import score_onboarding
 from api import db
+from api.auth import create_access_token
 from engine.safety_check import evaluate_item9
 
 router = APIRouter()
+
 
 
 @router.post("/onboard", response_model=OnboardResponse)
@@ -90,8 +92,11 @@ async def onboard(req: OnboardRequest):
             "for you so we can flag any real changes."
         )
 
+    auth_token = create_access_token(user_id)
+
     return OnboardResponse(
         user_id=user_id,
+        auth_token=auth_token,
         phq2_score=scores.phq2_score,
         gad2_score=scores.gad2_score,
         pss4_score=scores.pss4_score,

@@ -8,17 +8,27 @@ to api/agent.py. All agent logic (safety pre-screen, tool loop) lives
 there so it can be unit-tested without HTTP.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from api.models import AgentChatRequest, AgentChatResponse
 from api import db
+from api.auth import get_current_user_id
 from api.agent import run_agent
 
 router = APIRouter()
 
 
 @router.post("/agent/chat", response_model=AgentChatResponse)
-async def agent_chat(req: AgentChatRequest):
+async def agent_chat(
+    req: AgentChatRequest,
+    current_user_id: str = Depends(get_current_user_id),
+):
+    if req.user_id != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied: You can only chat with the agent using your own account.",
+        )
+
     user = db.get_user(req.user_id)
     if not user:
         raise HTTPException(

@@ -3,8 +3,7 @@
 A private, non-judgmental early-warning system for student burnout — now
 with an **autonomous AI agent** students can talk to about their own data.
 
-**SDG 3: Good Health and Well-being** · Built for the IBM SkillsBuild
-AI Automation & Intelligent Solutions Internship.
+**SDG 3: Good Health and Well-being** ·
 
 > This tool does **not** diagnose, does **not** replace therapy, and is
 > **not** a crisis service. It is a bridge to help-seeking.
@@ -31,7 +30,7 @@ AI Automation & Intelligent Solutions Internship.
    gentle re-engagement; otherwise → no action. The LLM only words the
    message; nudges appear in the student's agent chat at next login,
    marked "sent automatically by the daily agent sweep."
-5. **Wellbeing Agent (LLM + tools)** — a Groq LLaMA 3.3 70B agent that
+5. **Wellbeing Agent (LLM + tools)** — a Groq LLM agent that
    autonomously decides which tools to call to answer the student:
 
    | Tool | What it gives the agent |

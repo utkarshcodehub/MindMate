@@ -111,7 +111,7 @@ def _write_message(action: str, metrics: list) -> str:
                 "them back. No data, scores, AI or diagnosis mentions."
             )
         resp = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "system", "content": (
                     "You write brief, warm notes for a student wellbeing app. "

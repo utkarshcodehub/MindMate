@@ -49,12 +49,16 @@ export default function App() {
   // Called by Onboarding on successful POST /api/onboard
   function handleOnboardComplete(data) {
     localStorage.setItem(USER_KEY, data.user_id)
+    if (data.auth_token) {
+      localStorage.setItem('wb_auth_token', data.auth_token)
+    }
     setUserId(data.user_id)
     if (data.crisis_path_fired) {
       setCrisis({ resources: data.crisis_resources, message: data.message })
     }
     setView('daily-log')
   }
+
 
   // Called by DailyLog on successful POST /api/log
   function handleLogSubmit(result) {

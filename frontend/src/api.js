@@ -6,11 +6,18 @@
  */
 
 const BASE = (import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://student-wellbeing-api.onrender.com' : '')) + '/api'
+const TOKEN_KEY = 'wb_auth_token'
 
 async function request(path, options = {}) {
+  const token = localStorage.getItem(TOKEN_KEY)
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  }
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }))
@@ -18,6 +25,7 @@ async function request(path, options = {}) {
   }
   return res.json()
 }
+
 
 /** Submit onboarding answers (9 questions + item 9) */
 export function onboard(data) {
